@@ -1,0 +1,20 @@
+{
+  "name": "buatdoc-express-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Express server example using buatdoc",
+  "scripts": {
+    "start": "ts-node node-express.ts",
+    "dev": "ts-node node-express.ts"
+  },
+  "dependencies": {
+    "buatdoc": "file:../../",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
