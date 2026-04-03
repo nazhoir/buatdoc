@@ -24,7 +24,7 @@ import {
   generateRelId,
   generateImageFilename,
 } from '../utils/imageUtils';
-import { resolvePath, escapeXml } from '../utils/objectResolver';
+import { escapeXml } from '../utils/objectResolver';
 
 // Default image dimensions if none specified
 const DEFAULT_WIDTH_PX = 200;
@@ -227,8 +227,11 @@ export class DocxEngine {
       const isPlaceholder = /^\{\{\s*[^\}]+\s*\}\}$/.test(configuredAlt);
       const safeAlt = escapeXml(isPlaceholder || !configuredAlt ? varName : configuredAlt);
 
-      const nameRe = new RegExp(`name="\\{\\{${this.escapeRegex(varName)}\\}\\}"`, 'g');
-      const descrRe = new RegExp(`descr="\\{\\{${this.escapeRegex(varName)}\\}\\}"`, 'g');
+      const escapedVar = this.escapeRegex(varName);
+      const namePattern = 'name="\\{\\{' + escapedVar + '\\}\\}"';
+      const descrPattern = 'descr="\\{\\{' + escapedVar + '\\}\\}"';
+      const nameRe = new RegExp(namePattern, 'g');
+      const descrRe = new RegExp(descrPattern, 'g');
 
       result = result.replace(nameRe, `name="${safeAlt}"`);
       result = result.replace(descrRe, `descr="${safeAlt}"`);
@@ -248,7 +251,7 @@ export class DocxEngine {
     relationships: RelationshipEntry[],
     newImages: ImageEntry[],
     existingMedia: string[],
-    skipVarNames: Set<string> = new Set()
+    _skipVarNames: Set<string> = new Set()
   ): Promise<string> {
     if (imageVars.size === 0) return xml;
 
@@ -261,7 +264,7 @@ export class DocxEngine {
     let match: RegExpExecArray | null;
     
     while ((match = imgRegex.exec(result)) !== null) {
-       const isBlock = match[1] === '%%';
+       const _isBlock = match[1] === '%%';
        const expression = match[2];
        const parts = expression.trim().split(/\\s+/);
        const cleanName = parts[0];

@@ -95,7 +95,7 @@ export class NodeAdapter implements StorageAdapter {
   /**
    * Convert bytes to Node Buffer (usable as Blob equivalent in Node)
    */
-  async toBlob(data: Uint8Array, mimeType: string = DOCX_MIME): Promise<Buffer> {
+  async toBlob(data: Uint8Array, _mimeType: string = DOCX_MIME): Promise<Buffer> {
     return Buffer.from(data);
   }
 

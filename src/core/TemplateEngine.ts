@@ -66,8 +66,19 @@ export class TemplateEngine {
     let isRaw = false;
     let expr = expression;
 
-    if (expr.startsWith('r@')) { isRaw = true; expr = expr.slice(2).trim(); }
-    else if (expr.startsWith('@')) { isRaw = true; expr = expr.slice(1).trim(); }
+    if (expr.startsWith('r@')) {
+      isRaw = true;
+      expr = expr.slice(2).trim();
+    } else if (expr.startsWith('@')) {
+      // Preserve metadata variables like @index, @first, @last, @value
+      // when they exist on the data object. Otherwise fall back to raw mode.
+      if (resolvePath(data, expr) !== undefined) {
+        isRaw = false;
+      } else {
+        isRaw = true;
+        expr = expr.slice(1).trim();
+      }
+    }
 
     const pipeIdx = expr.indexOf('|');
     let pathPart = pipeIdx !== -1 ? expr.slice(0, pipeIdx).trim() : expr;
@@ -186,10 +197,11 @@ export class TemplateEngine {
         expectedClose = `${open}${closeMarker}${close}`;
       }
 
+      const blockOpenHint = `${open}${prefix}${blockName}`;
       const { blockContent, endPos } = this.findMatchingEnd(
         template,
         afterOpenTag,
-        fullOpenTag,
+        blockOpenHint,
         expectedClose
       );
 
@@ -425,14 +437,14 @@ export class TemplateEngine {
   private findMatchingEnd(
     template: string,
     startPos: number,
-    openTag: string,
+    openTagHint: string,
     closeTag: string
   ): { blockContent: string; endPos: number } {
     let depth = 1;
     let pos   = startPos;
 
     while (pos < template.length && depth > 0) {
-      const nextOpen  = template.indexOf(openTag,  pos);
+      const nextOpen  = template.indexOf(openTagHint, pos);
       const nextClose = template.indexOf(closeTag, pos);
 
       if (nextClose === -1) {
@@ -441,7 +453,7 @@ export class TemplateEngine {
 
       if (nextOpen !== -1 && nextOpen < nextClose) {
         depth++;
-        pos = nextOpen + openTag.length;
+        pos = nextOpen + openTagHint.length;
       } else {
         depth--;
         if (depth === 0) {

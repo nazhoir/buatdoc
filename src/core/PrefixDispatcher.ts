@@ -1,4 +1,4 @@
-import { JsonObject, JsonValue } from '../interfaces/TemplateTypes';
+import { JsonObject } from '../interfaces/TemplateTypes';
 
 /**
  * Registry of supported Template Prefixes and their associated behaviors.
