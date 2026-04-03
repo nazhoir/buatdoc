@@ -38,9 +38,18 @@ jobs:
   publish:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
     steps:
       - uses: actions/checkout@v4
+      - name: Print CI context for trace
+        run: |
+          echo "GITHUB_EVENT_NAME=${{ github.event_name }}"
+          echo "GITHUB_REF=${{ github.ref }}"
+          echo "GITHUB_SHA=${{ github.sha }}"
+          echo "GITHUB_ACTOR=${{ github.actor }}"
+          echo "TAG=${{ github.ref_name }}"
+          echo "IS_TAG=$([[ $GITHUB_REF == refs/tags/v* ]] && echo true || echo false)"
+          echo "IS_MAIN=$([[ $GITHUB_REF == refs/heads/main ]] && echo true || echo false)"
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
